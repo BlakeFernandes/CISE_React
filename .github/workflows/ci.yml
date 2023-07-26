@@ -21,6 +21,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+      - name: Install dependencies
+        run: npm ci
+        working-directory: Week2/cise_ass1a_worksheet2-frontend/
+      - name: Build
+        run: npm run build --if-present
+        working-directory: Week2/cise_ass1a_worksheet2-frontend/
+      - name: Test
+        run: npm test
+        working-directory: Week2/cise_ass1a_worksheet2-frontend/
