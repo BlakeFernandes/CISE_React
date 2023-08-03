@@ -15,11 +15,11 @@ interface IBook {
 }
 
 interface ParamTypes {
-  id: string;
+  book: IBook;
 }
 
-function ShowBookDetails(props: {}): JSX.Element {
-  const [book, setBook] = useState<IBook | null>(null);
+function ShowBookDetails(props: ParamTypes): JSX.Element {
+  const { book } = props;
   const router = useRouter();
 
   const onDeleteClick = (id: string) => {

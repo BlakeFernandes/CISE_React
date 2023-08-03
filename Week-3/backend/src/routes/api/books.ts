@@ -1,7 +1,10 @@
 import express, { Request, Response } from 'express';
 import Book from '../../models/books';
+import bodyParser from 'body-parser';
 
 const router = express.Router();
+
+router.use(bodyParser.json({limit: '50mb'}));
 
 router.get('/test', (req: Request, res: Response) => res.send('book route testing!'));
 

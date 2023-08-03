@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
-import BookCard from './BookCard';
+import BookCard from '../components/book';
 
 interface IBook {
     _id: string;
