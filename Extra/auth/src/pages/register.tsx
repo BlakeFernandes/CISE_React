@@ -1,27 +1,11 @@
-import { z } from "zod";
-import { GetServerSidePropsContext, NextPage } from "next";
-import { useState } from "react";
-import { useRouter } from "next/router";
-import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { api } from "~/utils/api";
 
-import { ErrorCode } from "~/server/utils/ErrorCode";
+import { type TSignUpSchema, SignUpSchema } from "~/server/api/routers/auth.handler";
 
-interface LoginValues {
-    email: string;
-    password: string;
-    callbackUrl: string;
-}
-
-const formSchema = z.object({
-    email: z.string().min(1).email(),
-    password: z.string().min(1),
-}).passthrough();
-
-export default function Login() {
-    const router = useRouter();
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+export default function Register() {
 
     const {
         register,
@@ -29,22 +13,30 @@ export default function Login() {
         getValues,
         setError,
         formState: { errors },
-    } = useForm<LoginValues>({ resolver: zodResolver(formSchema) });
+    } = useForm<TSignUpSchema>({
+        resolver: zodResolver(SignUpSchema),
+    });
 
-    const login: SubmitHandler<LoginValues> = async (values: LoginValues) => {
-        setErrorMessage(null);
+    const mutation = api.authRouter.signUp.useMutation({
+        onSuccess: async (data) => {
+            await signIn("credentials", {
+                email: getValues("email"),
+                password: getValues("password"),
+                callbackUrl: '/'
+            });
+        },
+        onError: (error) => {
+            console.log(error)
+            setError("apiError", { message: error.message });
+        },
+    })
 
-        const res = await signIn("credentials", {
-            ...values,
-            redirect: false,
-        });
-
-        console.log(res)
-
-        if (!res) setErrorMessage(ErrorCode.InternalServerError)
-        else if (!res.error) await router.push("/")
-        else setErrorMessage(res.error || ErrorCode.InternalServerError)
-    }
+    const signUp: SubmitHandler<TSignUpSchema> = (signUpData: TSignUpSchema) => {
+        mutation.mutate({
+            email: signUpData.email,
+            password: signUpData.password,
+        })
+    };
 
     return (
         <div
@@ -59,7 +51,7 @@ export default function Login() {
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
-                    void handleSubmit(login)(e);
+                    void handleSubmit(signUp)(e);
                 }}
                 style={{
                     background: '#ffffff',
@@ -74,9 +66,9 @@ export default function Login() {
                     fontSize: '24px',
                     marginBottom: '20px'
                 }} className="text-center">
-                    Welcome back!
+                    Create an account
                 </h1>
-                {errorMessage && <p style={{ color: '#e74c3c', fontSize: '12px', marginBottom: '10px' }}>{errorMessage}</p>}
+                {errors && <p style={{ color: '#e74c3c', fontSize: '12px', marginBottom: '10px' }}>{errors.apiError?.message}</p>}
                 <div style={{ marginBottom: '15px' }}>
                     <label style={{ display: 'block', color: '#333', marginBottom: '5px', fontSize: '14px' }} htmlFor="email">
                         Email <span style={{ color: '#e74c3c' }}>*</span>
@@ -108,17 +100,11 @@ export default function Login() {
                             fontSize: '14px'
                         }}
                     />
-                    <p style={{ marginTop: '5px', fontSize: '14px' }}>
-                        <a href="/forgot-password" style={{ color: '#3498db', textDecoration: 'none' }}>
-                            Forgot Your Password?
-                        </a>
-                    </p>
                 </div>
-
-                <div className="flex justify-center">
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <input
                         type="submit"
-                        value="Log In"
+                        value="Register"
                         style={{
                             background: '#3498db',
                             color: '#fff',
@@ -128,38 +114,13 @@ export default function Login() {
                             cursor: 'pointer',
                             fontSize: '16px'
                         }}
-                        className="w-full"
                     />
                 </div>
-
-                <p style={{ marginTop: '5px' }} className="text-center pt-2">
-                    Need an account?{' '}
-                    <a href="/register" style={{ color: '#3498db', textDecoration: 'none' }}>
-                        Register
+                <p style={{ marginTop: '5px', fontSize: '14px' }} className="text-center">
+                    <a href="/login" style={{ color: '#3498db', textDecoration: 'none' }}>
+                        Already have an account?
                     </a>
                 </p>
-
-
-                <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0' }}>
-                    <div style={{ flex: '1', height: '1px', backgroundColor: '#ccc' }} />
-                    <span style={{ padding: '0 10px', color: '#666' }}>OR</span>
-                    <div style={{ flex: '1', height: '1px', backgroundColor: '#ccc' }} />
-                </div>
-
-                <div className="text-blue-500 border border-blue-200 shadow">
-                    <button
-                        color="secondary"
-                        className="w-full justify-center font-normal py-2"
-                        data-testid="google"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            void signIn("google", {
-                                callbackUrl: '/'
-                            });
-                        }}>
-                        {"Continue with Google"}
-                    </button>
-                </div>
             </form>
         </div>
     );

@@ -15,31 +15,7 @@ import { prisma } from "~/server/db";
 import { checkRateLimitAndThrowError } from "./middleware/checkRateLimitAndThrowError";
 import { ErrorCode } from "./utils/ErrorCode";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: DefaultSession["user"] & {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    };
-  }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
-}
-
-// const GOOGLE_API_CREDENTIALS = process.env.GOOGLE_API_CREDENTIALS ?? "{}";
-// const { client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET } = JSON.parse(GOOGLE_API_CREDENTIALS)?.web || {};
-// const GOOGLE_LOGIN_ENABLED = process.env.GOOGLE_LOGIN_ENABLED === "true";
-// const IS_GOOGLE_LOGIN_ENABLED = !!(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_LOGIN_ENABLED);
+const { client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET } = { client_id: process.env.GOOGLE_CLIENT_ID, client_secret: process.env.GOOGLE_CLIENT_SECRET };
 
 const PROVIDERS = [
   // EmailProvider({
@@ -57,9 +33,8 @@ const PROVIDERS = [
       password: { label: "Password", type: "password", placeholder: "Your super secure password" },
       totpCode: { label: "Two-factor Code", type: "input", placeholder: "Code from authenticator app" },
     },
-    async authorize(credentials, req) {
-      console.log('Checking creds');
-      
+    async authorize(credentials, req) {      
+      console.log('checking creds')
       if (!credentials) {
         console.error(`Credentials are missing`);
         throw new Error(ErrorCode.InternalServerError);
@@ -69,13 +44,13 @@ const PROVIDERS = [
         where: { email: credentials.email.toLocaleLowerCase() },
       })
 
+      await checkRateLimitAndThrowError({
+        identifier: credentials.email,
+      });
+
       if (!user) {
         throw new Error(ErrorCode.IncorrectEmailPassword);
       }
-
-      await checkRateLimitAndThrowError({
-        identifier: user.email,
-      });
 
       if (user.password && !credentials.totpCode) {
         if (!user.password) {
@@ -92,17 +67,17 @@ const PROVIDERS = [
         email: user.email,
       }
     }
-  })
+  }),
 ]
 
-// if (IS_GOOGLE_LOGIN_ENABLED) {
-//   PROVIDERS.push([
-//     GoogleProvider({
-//       clientId: GOOGLE_CLIENT_ID,
-//       clientSecret: GOOGLE_CLIENT_SECRET,
-//     }),
-//   ])
-// }
+if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
+  PROVIDERS.push(
+    GoogleProvider({
+      clientId: GOOGLE_CLIENT_ID ?? "",
+      clientSecret: GOOGLE_CLIENT_SECRET ?? "",
+    })
+  );
+}
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -122,7 +97,20 @@ export const AUTH_OPTIONS: NextAuthOptions = {
   },
   providers: PROVIDERS,
   callbacks: {
+    signIn({ user, account, profile, email, credentials }) {
+      if (!user.email) return false;
 
+      if (account?.provider) {
+        console.log(profile)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore-error TODO validate email_verified key on profile
+        user.email_verified = !!user.email_verified || !!user.emailVerified || !!profile?.email_verified;
+
+        return true;
+      }
+
+      return false;
+    }
   },
 };
 
