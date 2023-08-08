@@ -28,7 +28,7 @@ const UpdateBookInfo: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/api/books/${id}`)
+      .get(`${API_URL}/books/${id}`)
       .then((res) => {
         setBook(res.data);
       })
@@ -45,7 +45,7 @@ const UpdateBookInfo: React.FC = () => {
     e.preventDefault();
 
     axios
-      .put(`${API_URL}/api/books/${id}`, book)
+      .put(`${API_URL}/books/${id}`, book)
       .then((res) => {
         router.push(`/show-book/${id}`);
       })

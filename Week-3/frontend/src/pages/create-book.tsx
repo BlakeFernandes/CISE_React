@@ -33,7 +33,7 @@ const CreateBook = () => {
 
         console.log(API_URL)
         axios
-            .post(`${API_URL}/api/books`, book)
+            .post(`${API_URL}/books`, book)
             .then(() => {
                 setBook({
                     title: '',

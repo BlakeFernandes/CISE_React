@@ -20,7 +20,7 @@ const ShowBookList = () => {
 
     useEffect(() => {
         axios
-            .get(`${API_URL}/api/books`)
+            .get(`${API_URL}/books`)
             .then((res) => {
                 setBooks(res.data);
             })

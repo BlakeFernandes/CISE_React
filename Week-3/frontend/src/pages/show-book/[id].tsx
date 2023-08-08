@@ -25,7 +25,7 @@ function ShowBookDetails(props: ParamTypes): JSX.Element {
 
   const onDeleteClick = (id: string) => {
     axios
-      .delete(`${API_URL}/api/books/${id}`)
+      .delete(`${API_URL}/books/${id}`)
       .then((res) => {
         router.push('/');
       })
@@ -123,7 +123,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let book;
 
   try {
-    const res = await axios.get(`${API_URL}/api/books/${id}`);
+    const res = await axios.get(`${API_URL}/books/${id}`);
     book = res.data;
   } catch (err) {
     console.log('Error from ShowBookDetails');
