@@ -3,9 +3,11 @@ import { protectedProcedure } from "../../trpc";
 import { prisma } from "~/server/db";
 
 export default protectedProcedure
-.meta({ openapi: { method: 'GET', path: '/me' } })
+  .meta({ openapi: { method: "GET", path: "/me" } })
   .query(async ({ input, ctx }) => {
-    const user = await prisma.user.findUnique({ where: { id: ctx.session.user.id } });
+    const user = await prisma.user.findUnique({
+      where: { email: ctx.session.user.email },
+    });
 
     if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
 

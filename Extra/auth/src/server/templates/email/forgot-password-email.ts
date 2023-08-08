@@ -10,7 +10,7 @@ export type ForgotPasswordData = {
 };
 
 export default class ForgotPasswordEmail extends BaseEmail {
-  private readonly forgotPasswordData: ForgotPasswordData;
+  private forgotPasswordData: ForgotPasswordData;
 
   constructor(verifyEmailData: ForgotPasswordData) {
     super();

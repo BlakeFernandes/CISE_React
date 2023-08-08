@@ -4,15 +4,9 @@ import { serverConfig } from "~/server/config/nodemon-config";
 import { APP_NAME } from "~/server/utils/constants";
 
 export default class BaseEmail {
-  protected readonly mailerOptions: Options;
-
-  constructor() {
-    this.mailerOptions = this._getMailerOptions();
-  }
-
   public async sendEmail() {
     await createTransport(serverConfig.transport)
-      .sendMail(this.mailerOptions)
+      .sendMail(this._getMailerOptions())
       .catch((error) => {
         console.error("Error sending email: ", error);
       });

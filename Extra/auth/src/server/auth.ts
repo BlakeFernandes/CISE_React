@@ -15,7 +15,10 @@ import { prisma } from "~/server/db";
 import { checkRateLimitAndThrowError } from "./middleware/checkRateLimitAndThrowError";
 import { ErrorCode } from "./utils/ErrorCode";
 
-const { client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET } = { client_id: process.env.GOOGLE_CLIENT_ID, client_secret: process.env.GOOGLE_CLIENT_SECRET };
+const { client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET } = {
+  client_id: process.env.GOOGLE_CLIENT_ID,
+  client_secret: process.env.GOOGLE_CLIENT_SECRET,
+};
 
 const PROVIDERS = [
   // EmailProvider({
@@ -29,12 +32,23 @@ const PROVIDERS = [
     id: "credentials",
     name: "chrono.ly",
     credentials: {
-      email: { label: "Email Address", type: "email", placeholder: "john.doe@example.com" },
-      password: { label: "Password", type: "password", placeholder: "Your super secure password" },
-      totpCode: { label: "Two-factor Code", type: "input", placeholder: "Code from authenticator app" },
+      email: {
+        label: "Email Address",
+        type: "email",
+        placeholder: "john.doe@example.com",
+      },
+      password: {
+        label: "Password",
+        type: "password",
+        placeholder: "Your super secure password",
+      },
+      totpCode: {
+        label: "Two-factor Code",
+        type: "input",
+        placeholder: "Code from authenticator app",
+      },
     },
-    async authorize(credentials, req) {      
-      console.log('checking creds')
+    async authorize(credentials, req) {
       if (!credentials) {
         console.error(`Credentials are missing`);
         throw new Error(ErrorCode.InternalServerError);
@@ -42,7 +56,7 @@ const PROVIDERS = [
 
       const user = await prisma.user.findUnique({
         where: { email: credentials.email.toLocaleLowerCase() },
-      })
+      });
 
       await checkRateLimitAndThrowError({
         identifier: credentials.email,
@@ -56,7 +70,10 @@ const PROVIDERS = [
         if (!user.password) {
           throw new Error(ErrorCode.IncorrectEmailPassword);
         }
-        const isCorrectPassword = await compare(credentials.password, user.password);
+        const isCorrectPassword = await compare(
+          credentials.password,
+          user.password
+        );
         if (!isCorrectPassword) {
           throw new Error(ErrorCode.IncorrectEmailPassword);
         }
@@ -65,10 +82,10 @@ const PROVIDERS = [
       return {
         id: user.id,
         email: user.email,
-      }
-    }
+      };
+    },
   }),
-]
+];
 
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
   PROVIDERS.push(
@@ -101,16 +118,19 @@ export const AUTH_OPTIONS: NextAuthOptions = {
       if (!user.email) return false;
 
       if (account?.provider) {
-        console.log(profile)
+        console.log(profile);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore-error TODO validate email_verified key on profile
-        user.email_verified = !!user.email_verified || !!user.emailVerified || !!profile?.email_verified;
+        user.email_verified =
+          !!user.email_verified ||
+          !!user.emailVerified ||
+          !!profile?.email_verified;
 
         return true;
       }
 
       return false;
-    }
+    },
   },
 };
 

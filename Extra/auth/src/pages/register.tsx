@@ -84,6 +84,7 @@ export default function Register() {
                             fontSize: '14px'
                         }}
                     />
+                    <p style={{ display: 'block', color: '#333', marginBottom: '5px', fontSize: '14px' }}>{errors.email?.message}</p>
                 </div>
                 <div style={{ marginBottom: '20px' }}>
                     <label style={{ display: 'block', color: '#333', marginBottom: '5px', fontSize: '14px' }} htmlFor="password">
@@ -100,6 +101,7 @@ export default function Register() {
                             fontSize: '14px'
                         }}
                     />
+                    <p style={{ display: 'block', color: '#333', marginBottom: '5px', fontSize: '14px' }}>{errors.password?.message}</p>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <input

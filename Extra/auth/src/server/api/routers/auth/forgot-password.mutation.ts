@@ -1,5 +1,5 @@
 import { prisma } from "~/server/db";
-import { protectedProcedure } from "../../trpc";
+import { protectedProcedure, publicProcedure } from "../../trpc";
 import { ForgotPasswordSchema } from "./forgot-password.schema";
 import { TRPCError } from "@trpc/server";
 import dayjs from "dayjs";
@@ -9,7 +9,7 @@ const PASSWORD_RESET_EXPIRY_HOURS = 6;
 const RECENT_MAX_ATTEMPTS = 3;
 const RECENT_PERIOD_IN_MINUTES = 5;
 
-export default protectedProcedure
+export default publicProcedure
   .input(ForgotPasswordSchema)
   .mutation(async ({ input }) => {
     const user = await prisma.user.findUnique({
@@ -36,11 +36,11 @@ export default protectedProcedure
         },
       }
     );
-    if (recentPasswordRequestsCount >= RECENT_MAX_ATTEMPTS) {
-      throw new Error(
-        "Too many password reset attempts. Please try again later."
-      );
-    }
+    // if (recentPasswordRequestsCount >= RECENT_MAX_ATTEMPTS) {
+    //   throw new Error(
+    //     "Too many password reset attempts. Please try again later."
+    //   );
+    // }
 
     await sendForgotPasswordLink({
       user: {
