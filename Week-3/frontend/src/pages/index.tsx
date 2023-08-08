@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import BookCard from '../components/book';
+import { API_URL } from '~/utils/constants';
 
 interface IBook {
     _id: string;
@@ -19,7 +20,7 @@ const ShowBookList = () => {
 
     useEffect(() => {
         axios
-            .get('http://localhost:8082/api/books')
+            .get(`${API_URL}/api/books`)
             .then((res) => {
                 setBooks(res.data);
             })

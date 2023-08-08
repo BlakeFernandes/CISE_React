@@ -2,6 +2,7 @@ import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'
 import axios from 'axios';
+import { API_URL } from '~/utils/constants';
 
 interface IBook {
     title: string;
@@ -30,8 +31,9 @@ const CreateBook = () => {
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
 
+        console.log(API_URL)
         axios
-            .post('http://localhost:8082/api/books', book)
+            .post(`${API_URL}/api/books`, book)
             .then(() => {
                 setBook({
                     title: '',
