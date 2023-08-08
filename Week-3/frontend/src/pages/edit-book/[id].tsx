@@ -113,7 +113,6 @@ const UpdateBookInfo: React.FC = () => {
             <div className='form-group'>
               <label htmlFor='description'>Description</label>
               <textarea
-                type='text'
                 placeholder='Description of the Book'
                 name='description'
                 className='form-control'
