@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Link from 'next/link';
+import { API_URL } from '~/utils/constants';
 
 interface Book {
   title: string;
@@ -27,7 +28,7 @@ const UpdateBookInfo: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8082/api/books/${id}`)
+      .get(`${API_URL}/books/${id}`)
       .then((res) => {
         setBook(res.data);
       })
@@ -44,7 +45,7 @@ const UpdateBookInfo: React.FC = () => {
     e.preventDefault();
 
     axios
-      .put(`http://localhost:8082/api/books/${id}`, book)
+      .put(`${API_URL}/books/${id}`, book)
       .then((res) => {
         router.push(`/show-book/${id}`);
       })

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation'
 import axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
+import { API_URL } from '~/utils/constants';
 
 interface IBook {
   _id: string;
@@ -24,7 +25,7 @@ function ShowBookDetails(props: ParamTypes): JSX.Element {
 
   const onDeleteClick = (id: string) => {
     axios
-      .delete(`http://localhost:8082/api/books/${id}`)
+      .delete(`${API_URL}/books/${id}`)
       .then((res) => {
         router.push('/');
       })
@@ -122,7 +123,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let book;
 
   try {
-    const res = await axios.get(`http://localhost:8082/api/books/${id}`);
+    const res = await axios.get(`${API_URL}/books/${id}`);
     book = res.data;
   } catch (err) {
     console.log('Error from ShowBookDetails');

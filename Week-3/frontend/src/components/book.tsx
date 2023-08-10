@@ -14,7 +14,7 @@ interface BookCardProps {
 
 const BookCard: React.FC<BookCardProps> = (props) => {
   const book = props.book;
-  
+
   return (
     <div className='card-container'>
       <img
