@@ -7,7 +7,7 @@ const app = express();
 
 connectDB();
 
-app.use(cors({ origin: "*", credentials: true }));
+app.use(cors({ origin: true }));
 
 app.get("/", (req: Request, res: Response) => res.send("Hello world!"));
 app.use("/api/books", books);
