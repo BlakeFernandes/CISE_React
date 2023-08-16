@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import formStyles from "@/styles/Form.module.scss";
+import axios from "axios";
 const NewDiscussion = () => {
     const [title, setTitle] = useState("");
     const [authors, setAuthors] = useState<string[]>([]);
@@ -22,7 +23,31 @@ const NewDiscussion = () => {
                 linked_discussion: linkedDiscussion,
             })
         );
+
+        axios
+            .post(`/api/articles`, {
+                title: title,
+                authors: authors.join(", "),
+                source: source,
+                pubyear: pubYear.toString(),
+                doi: doi,
+                claim: summary,
+                evidence: linkedDiscussion
+            })
+            .then(() => {
+                setTitle("");
+                setAuthors([]);
+                setSource("");
+                setPubYear(0);
+                setDoi("");
+                setSummary("");
+                setLinkedDiscussion("");
+            })
+            .catch(() => {
+                console.log('Error in CreateBook!');
+            });
     };
+
     // Some helper methods for the authors array
     const addAuthor = () => {
         setAuthors(authors.concat([""]));
